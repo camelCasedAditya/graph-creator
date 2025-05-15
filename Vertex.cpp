@@ -8,6 +8,9 @@ Vertex::Vertex() {
   table = new int*[21];
   for(int i = 0; i < 21; i++) {
     table[i] = new int[21];
+    for(int j = 0; j<21; j++) {
+      table[i][j] = 0;
+    }
   }
 }
 
