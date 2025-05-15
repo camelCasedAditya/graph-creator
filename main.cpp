@@ -7,6 +7,7 @@ using namespace std;
 void addVertex(char* label, Vertex** array);
 void addEdge(char* start, char* end, int weight, Vertex** array);
 void printTable(Vertex* v);
+void deleteVertex(char* label, Vertex** array);
 
 int MAX = 20;
 
@@ -40,7 +41,9 @@ int main() {
   addEdge(input, input2, 5, vertices);
   cout << "HERE 2" << endl;
   printTable(vertices[0]);
-  
+  strcpy(input, "node2");
+  deleteVertex(input, vertices);
+  printTable(vertices[0]);
   return 0;
 }
 
@@ -95,3 +98,34 @@ void printTable(Vertex* v) {
   }
 }
 
+void deleteVertex(char* label, Vertex** array) {
+  Vertex* v = NULL;
+  int index = -1;
+  for(int i = 0; i < MAX; i++) {
+    if (array[i] != NULL && strcmp(array[i]->getLabel(), label) == 0) {
+      v = array[i];
+      index = i;
+      array[i] = NULL;
+    }
+  }
+
+  if (v == NULL || index == -1) {
+    cout << "This vertex does not exist" << endl;
+    return;
+  }
+  int** table = v->getTable();
+  for (int j = 0; j < MAX+1; j++) {
+    if (table[index+1][j] != 0) {
+      cout << "in" << endl;
+      Vertex* temp = array[j-1];
+      temp->setTable(index+1, j, 0);
+    }
+    else if (table[j][index+1] != 0) {
+      cout << "in" << endl;
+      Vertex* temp = array[j-1];
+      temp->setTable(j, index+1, 0);
+    }
+  }
+  delete v;
+  return;
+}

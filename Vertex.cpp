@@ -14,6 +14,11 @@ Vertex::Vertex() {
   }
 }
 
+Vertex::~Vertex() {
+  delete label;
+  delete table;
+}
+
 void Vertex::setLabel(char* newlabel) {
   strcpy(label, newlabel);
 }
