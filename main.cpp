@@ -30,21 +30,81 @@ int main() {
   //cout << "Weight: " << e->getWeight() << endl;
   //cout << "Start: " << e->getStart()->getTable()[1][5] << endl;
 
-  char input[100];
-  strcpy(input, "node1");
-  addVertex(input, vertices);
-  cout << vertices[0]->getLabel() << endl;
-  strcpy(input, "node2");
-  addVertex(input, vertices);
-  char input2[100];
-  strcpy(input2, "node1");
-  cout << "HERE" << endl;
-  addEdge(input, input2, 5, vertices);
-  cout << "HERE 2" << endl;
-  printTable(vertices[0]);
-  strcpy(input, "node2");
-  deleteVertex(input, vertices);
-  printTable(vertices[0]);
+  //char input[100];
+  //strcpy(input, "node1");
+  // addVertex(input, vertices);
+  //cout << vertices[0]->getLabel() << endl;
+  //strcpy(input, "node2");
+  // addVertex(input, vertices);
+  //char input2[100];
+  //strcpy(input2, "node1");
+  //cout << "HERE" << endl;
+  //addEdge(input, input2, 5, vertices);
+  //cout << "HERE 2" << endl;
+  //printTable(vertices[0]);
+  //strcpy(input, "node2");
+  //deleteVertex(input, vertices);
+  //printTable(vertices[0]);
+
+  bool running = true;
+  while(running == 1) {
+    char* input = new char[100];
+    cout << "Enter one of the following commands: " << endl;
+    cout << "\'ADDVERTEX\' to add a vertex" << endl;
+    cout << "\'ADDEDGE\' to add an edge" << endl;
+    cout << "\'DELETEVERTEX\' to delete a vertex" << endl;
+    cout << "\'DELETEEDGE\' to delete an edge" << endl;
+    cout << "\'PATH\' to find the shortest path" << endl;
+    cout << "\'PRINT\' to print out the table" << endl;
+    cout << "\'QUIT\' to close the program" << endl;
+    cin >> input;
+    if (strcmp(input, "ADDVERTEX") == 0) {
+      cout << "Enter a label for the vertex: " << endl;
+      cin >> input;
+      addVertex(input, vertices);
+    }
+    else if (strcmp(input, "ADDEDGE") == 0) {
+      char* labelone = new char[100];
+      char* labeltwo = new char[100];
+      int weight = 0;
+      cout << "Enter the label of the start vertex: " << endl;
+      cin >> labelone;
+
+      cout << "Enter the label of the end vertex: " << endl;
+      cin >> labeltwo;
+
+      cout << "Enter a weight for the edge between 1-100" << endl;
+      cin >> weight;
+      while (weight <= 0 || weight > 100) {
+	cout << "Enter a valid weight between 1-100" << endl;
+	cin >> weight;
+      }
+
+      addEdge(labelone, labeltwo, weight, vertices);
+    }
+    else if (strcmp(input, "PRINT") == 0) {
+
+      cout << "Enter the vertex you want to see the adjency table for: " << endl;
+      cin >> input;
+      for(int i = 0; i < 20; i++) {
+	if (vertices[i] != NULL && strcmp(input, vertices[i]->getLabel()) == 0) {
+	  printTable(vertices[i]);
+	  break;
+	}
+      }
+    }
+    else if (strcmp(input, "PATH") == 0) {
+      char* labelone = new char[100];
+      char* labeltwo = new char[100];
+      cout << "Enter the label of the start vertex: " << endl;
+      cin >> labelone;
+
+      cout << "Enter the label of the end vertex: " << endl;
+      cin >> labeltwo;
+
+      shortestPathSetup(labelone, labeltwo, vertices);
+    }
+  }
   return 0;
 }
 
@@ -163,7 +223,7 @@ void deleteEdge(char* start, char* end, Vertex** array) {
 void shortestPathSetup(char* start, char* end, Vertex** array) {
   int* totals = new int[20];
   for(int a = 0; a<20; a++) {
-    totals[a] = -1;
+    totals[a] = 10000;
   }
   int startIndex = -1;
   Vertex* startNode;
@@ -193,7 +253,14 @@ void shortestPathSetup(char* start, char* end, Vertex** array) {
 void shortestPathSearch(int startIndex, int endIndex, Vertex** array, int* totals) {
   int* distance = totals;
   int visited[20] = {0};
-  visited[startIndex] = 1;
+  for (int a = 0; a < 20; a++) {
+    if (array[a] == NULL) {
+      cout << "NULL: " << a << endl;
+      visited[a] = 1;
+    }
+  }
+  distance[startIndex] = 0;
+  Vertex* previousVertex[20] = {NULL};
   Vertex* start = array[startIndex];
   Vertex* end = array[endIndex];
   
@@ -206,20 +273,38 @@ void shortestPathSearch(int startIndex, int endIndex, Vertex** array, int* total
     //	}
     //}
     //}
-    int shortest = 1000000;
+    int shortest = 20*100;
     int index = -1;
     for (int j = 0; j<20; j++) {
-      if (visited[i] == 0 && distance[i] < shortest && distance[i] != -1) {
-	shortest = distance[i];
-	index = i;
+      cout << "Visited: " << visited[j];
+      cout << "Distance: " << distance[i];
+      if (visited[j] == 0 && distance[j] < shortest && distance[j] != -1) {
+	shortest = distance[j];
+	index = j;
       }
     }
-
+    cout << "here" << endl;
+    if (index == -1) {
+      continue;
+    }
     visited[index] = 1;
-    for (int k = 0; k < 20; k++) {
-
+    if (array[index] == NULL) {
+      cout << distance[endIndex] << endl;
+      return;
+    }
+    int** table = array[index]->getTable();
+    for (int k = 1; k < 21; k++) {
+      if(table[index+1][k] != 0 && visited[k-1] == 0) {
+	int d = table[index+1][k] + distance[k-1];
+	if (d < distance[k-1]) {
+	  distance[k-1] = d;
+	  previousVertex[k-1] = array[index];
+	}
+      }
     }
   }
+
+  cout << distance[endIndex] << endl;
   return;
 }
 
